@@ -10,7 +10,7 @@ export const usePlayer = () => {
       collided: false
    });
 
-   const rotate = (matrix, dir) => {
+   const rotateTetro = (matrix, dir) => {
       // transpose rows into columns
       const rotatedTetro = matrix.map((_, index) => 
          matrix.map(col => col[index]),
@@ -24,7 +24,7 @@ export const usePlayer = () => {
 
    const rotatePlayer = (stage, dir) => {
       const clonedPlayer = JSON.parse(JSON.stringify(player));
-      clonedPlayer.tetromino = rotate(clonedPlayer.tetromino, dir);
+      clonedPlayer.tetromino = rotateTetro(clonedPlayer.tetromino, dir);
 
       const posX = clonedPlayer.pos.x;
       let offset = 1;
@@ -32,7 +32,7 @@ export const usePlayer = () => {
          clonedPlayer.pos.x += offset;
          offset = -(offset + (offset > 0 ? 1 : -1));
          if (offset > clonedPlayer.tetromino[0].length) {
-            rotate(clonedPlayer.tetromino, -dir);
+            rotateTetro(clonedPlayer.tetromino, -dir);
             clonedPlayer.pos.x = posX;
             return;
          }
@@ -57,6 +57,6 @@ export const usePlayer = () => {
       })
    }, [])
 
-   return [player, updatePlayerPos, resetPlayer, rotatePlayer];
+   return [player, updatePlayerPos, resetPlayer, rotateTetro, rotatePlayer];
 }
 

@@ -7,14 +7,14 @@ import { StyledTetris, StyledTetrisWrapper } from './styles/StyledTetrisWrapper'
 import { usePlayer } from '../hooks/usePlayer';
 import { useStage } from '../hooks/useStage';
 import { useInterval } from '../hooks/useInterval';
-import { useGameStatus} from '../hooks/useGameStatus';
+import { useGameStatus } from '../hooks/useGameStatus';
 
 
 const Tetris = () => {
    const [dropTime, setDropTime] = useState(null);
    const [gameOver, setGameOver] = useState(false);
 
-   const [player, updatePlayerPos, resetPlayer, rotatePlayer] = usePlayer();
+   const [player, updatePlayerPos, resetPlayer, rotateTetro, rotatePlayer] = usePlayer();
    const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
    const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(rowsCleared);
 
@@ -51,7 +51,7 @@ const Tetris = () => {
             setGameOver(true);
             setDropTime(null);
          }
-         updatePlayerPos({ x:0, y:0, collided: true});
+         updatePlayerPos({ x: 0, y: 0, collided: true });
       }
    }
 
@@ -68,6 +68,21 @@ const Tetris = () => {
       drop();
    }
 
+   const hardDrop = () => {
+      const clonedPlayer = JSON.parse(JSON.stringify(player));
+      const posY = clonedPlayer.pos.y;
+      let offset = 1;
+      while (willCollide(clonedPlayer, stage, {x: 0, y:0})) {
+         clonedPlayer.pos.y += offset;
+         offset = (offset + 0.5);
+         if (offset > clonedPlayer.tetromino[0].length) {
+            //rotateTetro(clonedPlayer.tetromino, -);
+            clonedPlayer.pos.y = posY;
+            return;
+         }
+      }
+   }
+
    const move = ({ keyCode, shiftKey }) => {
       if (!gameOver) {
          if (keyCode === 37) { // left arrow
@@ -81,6 +96,8 @@ const Tetris = () => {
             rotatePlayer(stage, 1);
          } else if (keyCode === 38 && shiftKey) {
             rotatePlayer(stage, -1);
+         } else if (keyCode === 32) {
+            hardDrop();
          }
       }
    }
@@ -90,10 +107,10 @@ const Tetris = () => {
    }, dropTime)
 
    return (
-      <StyledTetrisWrapper 
-         role="button" 
-         tabIndex={0} 
-         onKeyDown={e => move(e)} 
+      <StyledTetrisWrapper
+         role="button"
+         tabIndex={0}
+         onKeyDown={e => move(e)}
          onKeyUp={keyUp}>
          <StyledTetris>
             <Stage stage={stage} />
